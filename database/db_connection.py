@@ -50,8 +50,8 @@ class DB_Connection:
                 agents_table = """
                 CREATE TABLE IF NOT EXISTS agents (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(255) NOT NULL,
-                    specialty VARCHAR(255) NOT NULL,
+                    name VARCHAR(50) NOT NULL,
+                    specialty VARCHAR(50) NOT NULL,
                     is_active BOOLEAN DEFAULT TRUE,
                     completed_missions INT DEFAULT 0,
                     failed_missions INT DEFAULT 0,
@@ -64,9 +64,9 @@ class DB_Connection:
                 missions_table = """
                 CREATE TABLE IF NOT EXISTS missions (
                     id INT AUTO_INCREMENT PRIMARY KEY,
-                    title VARCHAR(255) NOT NULL,
+                    title VARCHAR(50) NOT NULL,
                     description TEXT NOT NULL,
-                    location VARCHAR(255) NOT NULL,
+                    location VARCHAR(50) NOT NULL,
                     difficulty INT NOT NULL,
                     importance INT NOT NULL,
                     status VARCHAR(50) DEFAULT 'NEW',
