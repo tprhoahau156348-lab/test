@@ -26,15 +26,13 @@ class DB_Connection:
     
     def create_database(self):
         try:
-            conn = mysql.connector.connect(
+            with mysql.connector.connect(
                 host=self.host,
                 user=self.user,
                 password=self.password
-            )
-            cursor = conn.cursor()
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.database}")
-            cursor.close()
-            conn.close()
+            ) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {self.database}")
             print(f"[OK] Database '{self.database}' created or already exists")
             return True
         except Error as e:
@@ -48,46 +46,44 @@ class DB_Connection:
                 print("[FAIL] Could not connect to database for table creation")
                 return False
             
-            cursor = conn.cursor()
+            with conn.cursor() as cursor:
+                agents_table = """
+                CREATE TABLE IF NOT EXISTS agents (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    specialty VARCHAR(255) NOT NULL,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    completed_missions INT DEFAULT 0,
+                    failed_missions INT DEFAULT 0,
+                    agent_rank ENUM('Junior', 'Senior', 'Commander') NOT NULL
+                )
+                """
+                cursor.execute(agents_table)
+                print("[OK] Agents table created or already exists")
+                
+                missions_table = """
+                CREATE TABLE IF NOT EXISTS missions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    title VARCHAR(255) NOT NULL,
+                    description TEXT NOT NULL,
+                    location VARCHAR(255) NOT NULL,
+                    difficulty INT NOT NULL,
+                    importance INT NOT NULL,
+                    status VARCHAR(50) DEFAULT 'NEW',
+                    risk_level VARCHAR(50),
+                    assigned_agent_id INT,
+                    FOREIGN KEY (assigned_agent_id) REFERENCES agents(id)
+                )
+                """
+                cursor.execute(missions_table)
+                print("[OK] Missions table created or already exists")
             
-            agents_table = """
-            CREATE TABLE IF NOT EXISTS agents (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(50) NOT NULL,
-                specialty VARCHAR(50) NOT NULL,
-                is_active BOOLEAN DEFAULT TRUE,
-                completed_missions INT DEFAULT 0,
-                failed_missions INT DEFAULT 0,
-                agent_rank ENUM('Junior', 'Senior', 'Commander') NOT NULL
-            )
-            """
-            cursor.execute(agents_table)
-            print("[OK] Agents table created or already exists")
-            
-            missions_table = """
-            CREATE TABLE IF NOT EXISTS missions (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                title VARCHAR(50) NOT NULL,
-                description TEXT NOT NULL,
-                location VARCHAR(50 NOT NULL,
-                difficulty INT NOT NULL,
-                importance INT NOT NULL,
-                status VARCHAR(50) DEFAULT 'NEW',
-                risk_level VARCHAR(50),
-                assigned_agent_id INT,
-                FOREIGN KEY (assigned_agent_id) REFERENCES agents(id)
-            )
-            """
-            cursor.execute(missions_table)
-            print("[OK] Missions table created or already exists")
-            
-            cursor.close()
             conn.close()
             return True
         except Error as e:
             print(f"[FAIL] Error creating tables: {e}")
             return False
-        
+       
 
 # בבנאי אני מגדיר את כל פרטי ההתחברות והיצירה של הקונטיינר שלא יעשו לי שטויות מי שישתמש בזה 
 # במתודה get_connection , אני משתמש בפרטים שהזנתי בבנאי בשביל להתחבר לקונטיינר וכמובן בשביל למנוע תקלות למיניהם אני שם try לתפוס שלל שגיאות
