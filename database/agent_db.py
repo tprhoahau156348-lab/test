@@ -21,7 +21,13 @@ class AgentDB:
             
             with conn.cursor() as cursor:
                 query = "INSERT INTO agents (name, specialty, is_active, completed_missions, failed_missions, agent_rank) VALUES (%s, %s, %s, %s, %s, %s)"
-                values = (data.get('name'), data.get('specialty'), data.get('is_active', True), data.get('completed_missions', 0), data.get('failed_missions', 0), rank)
+                name = data.get('name')
+                specialty = data.get('specialty')
+                is_active = data.get('is_active', True)
+                completed = data.get('completed_missions', 0)
+                failed = data.get('failed_missions', 0)
+                
+                values = (name, specialty, is_active, completed, failed, rank)
                 cursor.execute(query, values)
                 conn.commit()
                 agent_id = cursor.lastrowid
@@ -52,18 +58,20 @@ class AgentDB:
             return []
     
     def get_agent_by_id(self, agent_id):
-
         try:
             conn = self.db.get_connection()
             if not conn:
                 return None
             
             with conn.cursor(dictionary=True) as cursor:
-                cursor.execute("SELECT * FROM agents WHERE ID = %s", (agent_id,))
+                cursor.execute("SELECT * FROM agents WHERE id = %s", (agent_id,))
                 agent = cursor.fetchone()
             
             conn.close()
-            return agent
+            if agent:
+                return agent
+            else:
+                return None
         except Error as e:
             print(f"Error: {e}")
             return None
@@ -74,21 +82,10 @@ class AgentDB:
             if not agent:
                 return {"success": False, "message": "Agent not found"}
             
-            name = data.get('name')
-            if name is None:
-                name = agent['name']
-            
-            specialty = data.get('specialty')
-            if specialty is None:
-                specialty = agent['specialty']
-            
-            is_active = data.get('is_active')
-            if is_active is None:
-                is_active = agent['is_active']
-            
-            agent_rank = data.get('agent_rank')
-            if agent_rank is None:
-                agent_rank = agent['agent_rank']
+            name = data.get('name', agent['name'])
+            specialty = data.get('specialty', agent['specialty'])
+            is_active = data.get('is_active', agent['is_active'])
+            agent_rank = data.get('agent_rank', agent['agent_rank'])
             
             if agent_rank not in self.VALID_RANKS:
                 return {"success": False, "message": f"Invalid rank. Must be one of: {', '.join(self.VALID_RANKS)}"}
@@ -163,10 +160,10 @@ class AgentDB:
             failed = agent['failed_missions']
             total = completed + failed
             
-            if total == 0:
-                success_rate = 0
-            else:
-                success_rate = (completed / total) * 100
+            success_rate = 0
+            if total > 0:
+                success_rate = completed / total
+                success_rate = success_rate * 100
                 success_rate = round(success_rate, 2)
             
             return {"completed": completed, "failed": failed, "total": total, "success_rate": success_rate}
@@ -185,7 +182,8 @@ class AgentDB:
                 result = cursor.fetchone()
             
             conn.close()
-            return result[0] if result else 0
+            count = result[0]
+            return count
         except Error as e:
             print(f"Error: {e}")
             return 0
