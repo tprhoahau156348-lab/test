@@ -115,3 +115,15 @@ docker run -d --name intelligence-mysql -e MYSQL_ROOT_PASSWORD=1234 \
 ``` bash 
  python3 -m uvicorn main:app --reload
 ````
+
+## agents דוגמא ליצירת שורה חדשה בטבלה
+```bash 
+{
+  "name": "Yossi Cohen",
+  "specialty": "Cyber",
+  "is_active": true,
+  "completed_missions": 0,
+  "failed_missions": 0,
+  "agent_rank": "Junior"
+}
+```
