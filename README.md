@@ -127,3 +127,14 @@ docker run -d --name intelligence-mysql -e MYSQL_ROOT_PASSWORD=1234 \
   "agent_rank": "Junior"
 }
 ```
+## דוגמא ליצירת שורה חדשה בטבלה missions
+
+``` bash
+{
+  "title": "Routine Patrol",
+  "description": "Standard border security sweep and camera inspection",
+  "location": "North Sector",
+  "difficulty": 3,
+  "importance": 2
+}
+```
