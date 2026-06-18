@@ -114,7 +114,7 @@ docker run -d --name intelligence-mysql -e MYSQL_ROOT_PASSWORD=1234 \
 ## הקוד להרצת קובץ main
 ``` bash 
  python3 -m uvicorn main:app --reload
-````
+```
 
 ## agents דוגמא ליצירת שורה חדשה בטבלה
 ```bash 
