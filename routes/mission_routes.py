@@ -49,3 +49,111 @@ def get_mission_by_id(mission_id: int):
         raise HTTPException(status_code=404, detail="Mission not found")
     logger.info(f"Successfully found mission {mission_id}")
     return {"message": "Success", "data": mission}
+
+@router.put("/{mission_id}/assign/{agent_id}")
+def assign_mission(mission_id: int, agent_id: int):
+    logger.info(f"PUT /missions/{mission_id}/assign/{agent_id} called")
+    logger.info("Validating assignment rules")
+    
+    mission = mission_db.get_mission_by_id(mission_id)
+    if not mission:
+        logger.error(f"Mission not found: {mission_id}")
+        raise HTTPException(status_code=404, detail="Mission not found")
+        
+    agent = agent_db.get_agent_by_id(agent_id)
+    if not agent:
+        logger.error(f"Agent not found: {agent_id}")
+        raise HTTPException(status_code=404, detail="Agent not found")
+        
+    if mission["status"] != "NEW":
+        logger.error("Mission status is not NEW")
+        raise HTTPException(status_code=400, detail="Mission not available")
+        
+    if not agent["is_active"]:
+        logger.error("Agent is inactive")
+        raise HTTPException(status_code=400, detail="Agent is not active")
+        
+    open_missions = mission_db.get_open_missions_by_agent(agent_id)
+    if len(open_missions) >= 3:
+        logger.error("Agent reached maximum open missions")
+        raise HTTPException(status_code=400, detail="Agent has reached maximum missions")
+        
+    if mission["risk_level"] == "CRITICAL" and agent["agent_rank"] != "Commander":
+        logger.error("Non-commander assigned to critical mission")
+        raise HTTPException(status_code=400, detail="Only Commander can handle critical missions")
+        
+    res = mission_db.assign_mission(mission_id, agent_id)
+    logger.info("Successfully updated mission assignment")
+    return {"message": "Success", "data": res.get("data")}
+
+@router.put("/{mission_id}/start")
+def start_mission(mission_id: int):
+    logger.info(f"PUT /missions/{mission_id}/start called")
+    mission = mission_db.get_mission_by_id(mission_id)
+    if not mission:
+        logger.error("Mission not found")
+        raise HTTPException(status_code=404, detail="Mission not found")
+        
+    if mission["status"] != "ASSIGNED":
+        logger.error("Mission status is not ASSIGNED")
+        raise HTTPException(status_code=400, detail="Invalid mission status")
+        
+    logger.info("Updating status to IN_PROGRESS")
+    res = mission_db.update_mission_status(mission_id, "IN_PROGRESS")
+    logger.info(f"Mission {mission_id} started successfully")
+    return {"message": "Success", "data": res.get("data")}
+
+@router.put("/{mission_id}/complete")
+def complete_mission(mission_id: int):
+    logger.info(f"PUT /missions/{mission_id}/complete called")
+    mission = mission_db.get_mission_by_id(mission_id)
+    if not mission:
+        logger.error("Mission not found")
+        raise HTTPException(status_code=404, detail="Mission not found")
+        
+    if mission["status"] != "IN_PROGRESS":
+        logger.error("Mission status is not IN_PROGRESS")
+        raise HTTPException(status_code=400, detail="Invalid mission status")
+        
+    logger.info("Updating status to COMPLETED")
+    res = mission_db.update_mission_status(mission_id, "COMPLETED")
+    if mission.get("assigned_agent_id"):
+        agent_db.increment_completed(mission["assigned_agent_id"])
+    logger.info(f"Mission {mission_id} completed successfully")
+    return {"message": "Success", "data": res.get("data")}
+
+@router.put("/{mission_id}/fail")
+def fail_mission(mission_id: int):
+    logger.info(f"PUT /missions/{mission_id}/fail called")
+    mission = mission_db.get_mission_by_id(mission_id)
+    if not mission:
+        logger.error("Mission not found")
+        raise HTTPException(status_code=404, detail="Mission not found")
+        
+    if mission["status"] != "IN_PROGRESS":
+        logger.error("Mission status is not IN_PROGRESS")
+        raise HTTPException(status_code=400, detail="Invalid mission status")
+        
+    logger.info("Updating status to FAILED")
+    res = mission_db.update_mission_status(mission_id, "FAILED")
+    if mission.get("assigned_agent_id"):
+        agent_db.increment_failed(mission["assigned_agent_id"])
+    logger.info(f"Mission {mission_id} failed successfully")
+    return {"message": "Success", "data": res.get("data")}
+
+@router.put("/{mission_id}/cancel")
+def cancel_mission(mission_id: int):
+    logger.info(f"PUT /missions/{mission_id}/cancel called")
+    mission = mission_db.get_mission_by_id(mission_id)
+    if not mission:
+        logger.error("Mission not found")
+        raise HTTPException(status_code=404, detail="Mission not found")
+        
+    if mission["status"] not in ["NEW", "ASSIGNED"]:
+        logger.error("Mission cannot be cancelled from this state")
+        raise HTTPException(status_code=400, detail="Invalid mission status")
+        
+    logger.info("Updating status to CANCELLED")
+    res = mission_db.update_mission_status(mission_id, "CANCELLED")
+    logger.info(f"Mission {mission_id} cancelled successfully")
+    return {"message": "Success", "data": res.get("data")}
