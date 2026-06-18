@@ -1,0 +1,33 @@
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | GET /agents endpoint called
+INFO | Successfully fetched all agents list
+INFO | POST /agents endpoint called
+INFO | Agent created successfully with id: 1
+INFO | GET /agents/2 endpoint called
+ERROR | Agent with id 2 not found
+INFO | GET /agents/1 endpoint called
+INFO | Successfully found agent 1
+INFO | PUT /agents/1 endpoint called
+INFO | Agent 1 updated successfully
+INFO | GET /agents/1/performance endpoint called
+INFO | Successfully generated performance for agent 1
+INFO | Top agent report fetched successfully
