@@ -110,3 +110,8 @@ get_top_agent() |	הסוכן עם completed_missions הגבוה ביותר
 docker run -d --name intelligence-mysql -e MYSQL_ROOT_PASSWORD=1234 \
  -e MYSQL_DATABASE=Intelligence_db -p 3306:3306 mysql:8.0
 ```
+
+## הקוד להרצת קובץ main
+``` bash 
+uvicorn main:app --reload
+````
