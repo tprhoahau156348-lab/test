@@ -1,7 +1,6 @@
 import mysql.connector
 from mysql.connector import Error
 from .db_connection import DB_Connection
-from .agent_db import AgentDB
 
 class MissionDB:
     
@@ -9,7 +8,6 @@ class MissionDB:
     
     def __init__(self):
         self.db = DB_Connection()
-        self.agent_db = AgentDB()
     
     def calculate_risk_level(self, difficulty, importance):
         total_score = difficulty * 2
@@ -99,6 +97,9 @@ class MissionDB:
     
     def assign_mission(self, mission_id, agent_id):
         try:
+            from .agent_db import AgentDB
+            agent_db = AgentDB()
+            
             mission = self.get_mission_by_id(mission_id)
             if not mission:
                 return {"success": False, "message": "Mission not found"}
@@ -107,7 +108,7 @@ class MissionDB:
             if status != 'NEW':
                 return {"success": False, "message": "Can only assign missions with status NEW"}
             
-            agent = self.agent_db.get_agent_by_id(agent_id)
+            agent = agent_db.get_agent_by_id(agent_id)
             if not agent:
                 return {"success": False, "message": "Agent not found"}
             
