@@ -1,16 +1,23 @@
-# מערכת לניהול סוכנים ומשימות לשימוש יחידת מודעין. המערכת תכלול: שכבת הנתונים המלאה — חיבור ל-MySQL, יצירת טבלאות, ומחלקות OOP לניהול הנתונים.
+# מערכת לניהול סוכנים ומשימות לשימוש יחידת מודעין. המערכת תכלול: שכבת הנתונים המלאה — חיבור ל-MySQL, יצירת טבלאות, ומחלקות OOP לניהול הנתונים. בנוסף חיבור של הכל לשרת HTTP.
 
 
 ## מבנה התקיות והקבצים
 ```
 intelligence-task-manager/
-├── database/
+├── main.py 
+├──/database
 │   ├── db_connection.py
 │   ├── agent_db.py
 │   └── mission_db.py
-├── README.md
-├── requirements.txt
-└── .gitignore
+├──/routes
+│  ├── agent_routes.py
+│  ├── mission_routes.py
+│  └── report_routes.py
+├──/logs
+│ └── app.log
+├── README.md 
+└── requirements.txt
+
 ```
 
 ## מבנה הטבלאות
